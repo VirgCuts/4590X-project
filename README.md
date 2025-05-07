@@ -1,6 +1,6 @@
 Project Idea: AWS Secure Resource Validation with AI assistant 
 
-    My proposal for the term project is an Interface for non-security AWS users to 
+My proposal for the term project is an Interface for non-security AWS users to 
 identify and fix common security misconfiguration on there pre-existing AWS resources. 
 The tool will first scan a user’s AWS environment for any possible security 
 risk/misconfigurations such as say a public S3 bucket or a IAM role with to many 
