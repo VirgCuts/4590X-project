@@ -9,16 +9,24 @@ public class Main {
         // S3 scan
         S3BucketScanner s3Scanner = new S3BucketScanner(region);
         s3Scanner.scanBuckets();
-        s3Scanner.close();
-
         // IAM scan
         IAMRoleScanner iamScanner = new IAMRoleScanner();
         iamScanner.scanRoles();
-        iamScanner.close();
-
         // EC2 scan
         EC2SecurityGroupScanner ec2Scanner = new EC2SecurityGroupScanner(region);
         ec2Scanner.scanSecurityGroups();
+
+        s3Scanner.printAllIssuesBySeverity();
+        s3Scanner.printSummary();
+
+        iamScanner.printAllIssuesBySeverity();
+        iamScanner.printSummary();
+
+        ec2Scanner.printAllIssuesBySeverity();
+        ec2Scanner.printSummary();
+        
+        s3Scanner.close();
+        iamScanner.close();
         ec2Scanner.close();
     }
 }
