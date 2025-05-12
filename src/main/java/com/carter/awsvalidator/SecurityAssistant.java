@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class SecurityAssistant {
     private final List<SecurityIssue> securityIssues;
     private final Scanner scanner;
+    private final BedrockAssistant bedrockAssistant;
     
     private static final String RESET = "\u001B[0m";
     private static final String CYAN = "\u001B[36m";
@@ -22,6 +23,7 @@ public class SecurityAssistant {
     public SecurityAssistant(List<SecurityIssue> securityIssues) {
         this.securityIssues = securityIssues;
         this.scanner = new Scanner(System.in);
+        this.bedrockAssistant = new BedrockAssistant();
     }
     
     /**
@@ -59,6 +61,9 @@ public class SecurityAssistant {
                     explainSecurityConcepts();
                     break;
                 case "5":
+                    askSecurityQuestion();
+                    break;
+                case "6":
                     exit = true;
                     break;
                 default:
@@ -99,7 +104,8 @@ public class SecurityAssistant {
         System.out.println("2. View issues by severity");
         System.out.println("3. Get guided remediation help");
         System.out.println("4. Learn about AWS security concepts");
-        System.out.println("5. Exit");
+        System.out.println("5. Ask a security question");
+        System.out.println("6. Exit");
         System.out.print("> ");
     }
     
@@ -258,7 +264,16 @@ public class SecurityAssistant {
             System.out.printf("\n=== Issue %d/%d: %s ===\n", 
                     i + 1, issues.size(), issue.getTitle());
             System.out.println("Description: " + issue.getDescription());
-            System.out.println("\nRecommended action: " + issue.getRecommendation());
+            
+            // Use Bedrock Assistant for AI remediation help
+            System.out.println("\n[AI Assistant]: Getting detailed remediation steps...");
+            try {
+                String remediation = bedrockAssistant.getRemediationSteps(issue);
+                System.out.println("\n" + remediation);
+            } catch (Exception e) {
+                System.out.println("Failed to get AI remediation help. Using basic recommendation:");
+                System.out.println("\nRecommended action: " + issue.getRecommendation());
+            }
             
             if (issue.getRemediationCommand() != null && !issue.getRemediationCommand().isEmpty()) {
                 System.out.println("\nYou can fix this issue by running the following command:");
@@ -325,7 +340,85 @@ public class SecurityAssistant {
             System.out.println(issue.getRemediationCommand());
         }
         
+        // New AI-powered options menu
+        System.out.println("\nAI Assistant Options:");
+        System.out.println("1. Get simplified explanation");
+        System.out.println("2. Get detailed remediation steps");
+        System.out.println("3. Go back");
+        System.out.print("> ");
+        
+        String choice = scanner.nextLine();
+        
+        switch (choice) {
+            case "1":
+                getAIExplanation(issue);
+                break;
+            case "2":
+                getAIRemediation(issue);
+                break;
+            case "3":
+                // Go back
+                break;
+            default:
+                System.out.println("Invalid option.");
+                break;
+        }
+    }
+    
+    private void getAIExplanation(SecurityIssue issue) {
+        System.out.println("\n[AI Assistant]: Generating simplified explanation...");
+        try {
+            String explanation = bedrockAssistant.explainSecurityIssue(issue);
+            System.out.println("\n" + explanation);
+        } catch (Exception e) {
+            System.out.println("Failed to get AI explanation: " + e.getMessage());
+        }
+        
         System.out.println("\nPress Enter to go back");
+        scanner.nextLine();
+        
+        // Show issue details again
+        showIssueDetails(issue);
+    }
+    
+    private void getAIRemediation(SecurityIssue issue) {
+        System.out.println("\n[AI Assistant]: Generating detailed remediation steps...");
+        try {
+            String remediation = bedrockAssistant.getRemediationSteps(issue);
+            System.out.println("\n" + remediation);
+        } catch (Exception e) {
+            System.out.println("Failed to get AI remediation: " + e.getMessage());
+        }
+        
+        System.out.println("\nPress Enter to go back");
+        scanner.nextLine();
+        
+        // Show issue details again
+        showIssueDetails(issue);
+    }
+    
+    private void askSecurityQuestion() {
+        System.out.println("\n=== Ask a Security Question ===");
+        System.out.println("What would you like to know about AWS security?");
+        System.out.print("> ");
+        
+        String question = scanner.nextLine();
+        
+        if (question.trim().isEmpty()) {
+            System.out.println("No question provided. Returning to main menu.");
+            return;
+        }
+        
+        System.out.println("\n[AI Assistant]: Thinking about your question...");
+        try {
+            String answer = bedrockAssistant.answerSecurityQuestion(question);
+            System.out.println("\n" + answer);
+        } catch (Exception e) {
+            System.out.println("Sorry, I couldn't process your question: " + e.getMessage());
+            System.out.println("Please try again or ask a different question.");
+        }
+        
+        System.out.println("\nPress Enter to go back to the main menu");
         scanner.nextLine();
     }
     
@@ -358,6 +451,21 @@ public class SecurityAssistant {
         System.out.println("5. Versioning - Enable versioning to protect against accidental deletions");
         System.out.println("6. Logging - Enable access logging to track who is accessing your data");
         
+        // Option to ask AI for more details
+        System.out.println("\nWould you like to ask the AI assistant more about S3 security? (y/n)");
+        String choice = scanner.nextLine();
+        
+        if (choice.equalsIgnoreCase("y")) {
+            String question = "Explain AWS S3 bucket security best practices and common vulnerabilities";
+            System.out.println("\n[AI Assistant]: Generating comprehensive explanation...");
+            try {
+                String answer = bedrockAssistant.answerSecurityQuestion(question);
+                System.out.println("\n" + answer);
+            } catch (Exception e) {
+                System.out.println("Failed to get AI explanation: " + e.getMessage());
+            }
+        }
+        
         System.out.println("\nPress Enter to go back");
         scanner.nextLine();
     }
@@ -374,6 +482,21 @@ public class SecurityAssistant {
         System.out.println("4. Regular Audits - Review permissions regularly to remove unnecessary access");
         System.out.println("5. Strong Password Policy - Enforce complex passwords and regular rotation");
         System.out.println("6. Group-Based Access - Use IAM groups to manage permissions for multiple users");
+        
+        // Option to ask AI for more details
+        System.out.println("\nWould you like to ask the AI assistant more about IAM best practices? (y/n)");
+        String choice = scanner.nextLine();
+        
+        if (choice.equalsIgnoreCase("y")) {
+            String question = "Explain AWS IAM security best practices and common mistakes to avoid";
+            System.out.println("\n[AI Assistant]: Generating comprehensive explanation...");
+            try {
+                String answer = bedrockAssistant.answerSecurityQuestion(question);
+                System.out.println("\n" + answer);
+            } catch (Exception e) {
+                System.out.println("Failed to get AI explanation: " + e.getMessage());
+            }
+        }
         
         System.out.println("\nPress Enter to go back");
         scanner.nextLine();
@@ -400,6 +523,21 @@ public class SecurityAssistant {
         System.out.println("2. Least Access - Restrict source IPs to known addresses when possible");
         System.out.println("3. Regular Review - Audit rules to remove outdated permissions");
         
+        // Option to ask AI for more details
+        System.out.println("\nWould you like to ask the AI assistant more about AWS network security? (y/n)");
+        String choice = scanner.nextLine();
+        
+        if (choice.equalsIgnoreCase("y")) {
+            String question = "Explain AWS network security including Security Groups vs NACLs, and VPC security best practices";
+            System.out.println("\n[AI Assistant]: Generating comprehensive explanation...");
+            try {
+                String answer = bedrockAssistant.answerSecurityQuestion(question);
+                System.out.println("\n" + answer);
+            } catch (Exception e) {
+                System.out.println("Failed to get AI explanation: " + e.getMessage());
+            }
+        }
+        
         System.out.println("\nPress Enter to go back");
         scanner.nextLine();
     }
@@ -423,8 +561,22 @@ public class SecurityAssistant {
         System.out.println("- AWS KMS: Managed key service for creating and controlling encryption keys");
         System.out.println("- CloudHSM: Hardware-based key storage for regulatory compliance");
         
+        // Option to ask AI for more details
+        System.out.println("\nWould you like to ask the AI assistant more about AWS encryption options? (y/n)");
+        String choice = scanner.nextLine();
+        
+        if (choice.equalsIgnoreCase("y")) {
+            String question = "Explain AWS encryption options, KMS, and best practices for securing sensitive data";
+            System.out.println("\n[AI Assistant]: Generating comprehensive explanation...");
+            try {
+                String answer = bedrockAssistant.answerSecurityQuestion(question);
+                System.out.println("\n" + answer);
+            } catch (Exception e) {
+                System.out.println("Failed to get AI explanation: " + e.getMessage());
+            }
+        }
+        
         System.out.println("\nPress Enter to go back");
         scanner.nextLine();
     }
-
 }
