@@ -29,7 +29,7 @@ public class EC2SecurityGroupScanner {
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
     }
-
+    
     public List<SecurityIssue> scanSecurityGroups() {
         System.out.println(CYAN + "Scanning EC2 Security Groups for misconfigurations..." + RESET);
         issues.clear();
@@ -51,7 +51,7 @@ public class EC2SecurityGroupScanner {
         return;
     }
 
-    System.out.println("\n### SECURITY ISSUES BY SEVERITY ###");
+    System.out.println(CYAN+"\n### EC2GROUP SECURITY ISSUES BY SEVERITY ###"+RESET);
 
     SecuritySeverity[] severityOrder = {
         SecuritySeverity.CRITICAL,

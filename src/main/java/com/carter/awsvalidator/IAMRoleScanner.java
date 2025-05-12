@@ -110,7 +110,7 @@ public class IAMRoleScanner {
         return;
     }
 
-    System.out.println("\n### SECURITY ISSUES BY SEVERITY ###");
+    System.out.println(CYAN+"\n### IAMROLE SECURITY ISSUES BY SEVERITY ###"+RESET);
 
     SecuritySeverity[] severityOrder = {
         SecuritySeverity.CRITICAL,
@@ -590,7 +590,9 @@ public class IAMRoleScanner {
         
         return "unknown-account-id";
     }
-
+    public List<SecurityIssue> getIssues() {
+        return issues;
+    }
     public List<SecurityIssue> getIssuesBySeverity(SecuritySeverity severity) {
         List<SecurityIssue> filteredIssues = new ArrayList<>();
         for (SecurityIssue issue : issues) {
@@ -600,7 +602,7 @@ public class IAMRoleScanner {
         }
         return filteredIssues;
     }
-    
+
     public void close() {
         iamClient.close();
     }

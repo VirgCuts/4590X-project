@@ -82,7 +82,7 @@ public class S3BucketScanner {
         return;
     }
 
-    System.out.println("\n### SECURITY ISSUES BY SEVERITY ###");
+    System.out.println(CYAN+"\n### S3BUCKET SECURITY ISSUES BY SEVERITY ###"+RESET);
 
     SecuritySeverity[] severityOrder = {
         SecuritySeverity.CRITICAL,
@@ -435,7 +435,9 @@ public class S3BucketScanner {
             }
         }
     }
-
+    public List<SecurityIssue> getIssues() {
+        return issues;
+    }
     public List<SecurityIssue> getIssuesBySeverity(SecuritySeverity severity) {
         List<SecurityIssue> filteredIssues = new ArrayList<>();
         for (SecurityIssue issue : issues) {
